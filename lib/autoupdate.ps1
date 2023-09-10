@@ -129,7 +129,12 @@ function find_hash_in_xml([String] $url, [Hashtable] $substitutions, [String] $x
     # Then add them into the NamespaceManager
     $nsmgr = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
     $nsList | ForEach-Object {
-        $nsmgr.AddNamespace($_.LocalName, $_.Value)
+        if ($_.LocalName -eq 'xmlns') {
+            $nsmgr.AddNamespace('ns', $_.Value)
+            $xpath = $xpath -replace '/([^:/]+)((?=/)|(?=$))', '/ns:$1'
+        } else {
+            $nsmgr.AddNamespace($_.LocalName, $_.Value)
+        }
     }
 
     # Getting hash from XML, using XPath
